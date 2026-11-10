@@ -1,7 +1,7 @@
 ---
 episode: 001-matcha
 title: "matcha kini boleh, matcha depan gimana?"
-status: draft            # Thomas sets this to approved at gate 1
+status: draft            # Steve sets this to approved at gate 1
 copy_source: DRAFT — rebuilt from the PRD. Replace lines and on-screen copy with the
   exact text from the HTML prototype (drop it in prototype/) before approving.
 ---

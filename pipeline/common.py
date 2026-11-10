@@ -56,6 +56,12 @@ def save_scenes(episode: str, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
+def effective_method(scene: dict, data: dict) -> str | None:
+    """'frames' or 'i2v' for the episode's active test plan (scenes.json "plan")."""
+    by_plan = scene.get("method_by_plan") or {}
+    return by_plan.get(data.get("plan", "")) or scene.get("method") or by_plan.get("chatgpt")
+
+
 def find_scene(data: dict, scene_id: str) -> dict:
     for s in data["scenes"]:
         if s["id"] == scene_id:

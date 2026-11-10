@@ -31,13 +31,22 @@ def main() -> None:
     for tool, fix in [("node", "brew install node"), ("ffmpeg", "brew install ffmpeg"),
                       ("uv", "brew install uv"), ("git", "xcode-select --install"),
                       ("git-lfs", "brew install git-lfs && git lfs install"),
-                      ("claude", "npm install -g @anthropic-ai/claude-code")]:
+                      ("claude", "npm install -g @anthropic-ai/claude-code"),
+                      ("codex", "npm install -g @openai/codex")]:
         check(f"{tool} {version([tool, '--version']) if shutil.which(tool) else ''}".strip(),
               bool(shutil.which(tool)), fix)
     node_major = version(["node", "--version"]).lstrip("v").split(".")[0]
     check(f"node ≥ 20 (have {node_major or '?'})", node_major.isdigit() and int(node_major) >= 20, "brew install node@20")
 
-    print("\nKeys (.env)")
+    print("\nChatGPT plan (images)")
+    if shutil.which("codex"):
+        st = subprocess.run(["codex", "login", "status"], capture_output=True, text=True)
+        st_text = (st.stdout + st.stderr).strip()
+        check("Codex logged in with ChatGPT", "ChatGPT" in st_text, "codex login → Sign in with ChatGPT")
+    else:
+        check("Codex logged in with ChatGPT", False, "npm install -g @openai/codex && codex login")
+
+    print("\nKeys (.env) — fal is only for the 2 hero video clips")
     check(".env exists", (ROOT / ".env").exists(), "cp .env.example .env")
     for k in ("FAL_KEY", "ELEVENLABS_API_KEY"):
         v = os.environ.get(k, "")
@@ -52,7 +61,7 @@ def main() -> None:
 
     print("\nCharacter (gate before any Mak beat)")
     check("character/mak-reference/model-sheet.png", (CHARACTER / "mak-reference" / "model-sheet.png").exists(),
-          "/make-mak creates it on first run, then Thomas approves")
+          "/make-mak creates it on first run, then Steve approves")
     mouths = {"closed", "A", "E", "I", "O", "U", "FV", "MBP"}
     have = {p.stem for p in (CHARACTER / "mouth-shapes").glob("*.png")}
     check(f"mouth shapes {len(have & mouths)}/8", mouths <= have, "made with the model sheet")

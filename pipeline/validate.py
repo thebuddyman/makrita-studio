@@ -12,10 +12,25 @@ import json
 import re
 import sys
 
-from common import STATUSES, episode_dir, load_scenes, media_duration
+from common import STATUSES, effective_method, episode_dir, load_scenes, media_duration
 
 RP = re.compile(r"Rp\s?\d[\d.,]*\s?(?:rb|jt|ribu|juta)?", re.I)
-LAYOUTS = {"Hook", "Kenalin", "Marah", "Gelas", "Setahun", "Pun", "Solusi", "Punchline"}
+STAGES_OK = {"none", "center", "present-left", "present-right", "closeup"}
+SLOTS = {"full", "top", "side", "front", "bottom"}
+ANCHORS = {"mouth", "hand_r", "hand_l", "head", "screen"}
+
+
+def words_of(line: str) -> list[str]:
+    return [re.sub(r"[^\w]", "", w.lower()) for w in line.split() if re.sub(r"[^\w]", "", w)]
+
+
+def check_cue(sid: str, what: str, cue: dict, line: str, E) -> None:
+    w = cue.get("at_word")
+    if w:
+        word, _, nth = w.partition("#")
+        n = int(nth or 1)
+        if words_of(line).count(re.sub(r"[^\w]", "", word.lower())) < n:
+            E(f"{sid}: {what} cue at_word '{w}' is not in the line")
 
 
 def rp_value(text: str) -> float | None:
@@ -83,14 +98,36 @@ def main() -> None:
                 E(f"{sid}: missing '{k}'")
         if s.get("status") not in STATUSES:
             E(f"{sid}: status '{s.get('status')}' not in {STATUSES}")
-        if s.get("layout") and s["layout"] not in LAYOUTS:
-            W(f"{sid}: layout '{s['layout']}' has no Remotion component yet (generic layout used)")
+        line = s.get("line", "")
+        if s.get("stage") and s["stage"] not in STAGES_OK:
+            E(f"{sid}: stage '{s['stage']}' not in {sorted(STAGES_OK)}")
+        for n, item in enumerate(s.get("infographic", [])):
+            what = f"infographic[{n}] {item.get('kind')}"
+            check_cue(sid, what, item, line, E)
+            if item.get("until"):
+                check_cue(sid, what + " until", item["until"], line, E)
+            if item.get("slot") and item["slot"] not in SLOTS:
+                E(f"{sid}: {what} slot '{item['slot']}' not in {sorted(SLOTS)}")
+            if item.get("anchor") and item["anchor"] not in ANCHORS:
+                E(f"{sid}: {what} anchor '{item['anchor']}' not in {sorted(ANCHORS)}")
+        for n, mv in enumerate((s.get("camera") or {}).get("moves", [])):
+            check_cue(sid, f"camera move {n}", mv, line, E)
         if s.get("type") == "mak_beat":
-            m = s.get("method")
+            m = effective_method(s, data)
+            if s.get("method_by_plan") and data.get("plan") not in s["method_by_plan"]:
+                E(f"{sid}: plan '{data.get('plan')}' not in method_by_plan {list(s['method_by_plan'])}")
             if m == "frames":
-                for k in ("frames", "frame_count", "fps_anim", "mouth"):
-                    if k not in s:
-                        E(f"{sid}: frames beat needs '{k}'")
+                poses = s.get("poses") or []
+                if not s.get("frames"):
+                    E(f"{sid}: frames beat needs 'frames' (folder)")
+                if len(poses) < 2:
+                    W(f"{sid}: only {len(poses)} pose(s) — TV-cartoon beats read best with 2–4 key poses")
+                for n, p in enumerate(poses):
+                    if not p.get("name") or not p.get("desc") or not p.get("frames"):
+                        E(f"{sid}: pose {n} needs name, desc and frames")
+                    if n > 0 and "at" not in p and "at_word" not in p:
+                        E(f"{sid}: pose '{p.get('name')}' needs a cue (at or at_word)")
+                    check_cue(sid, f"pose '{p.get('name')}'", p, line, E)
             elif m == "i2v":
                 for k in ("start_frame", "end_frame", "clip"):
                     if k not in s:
@@ -129,13 +166,11 @@ def main() -> None:
 
         # assets for render
         if a.for_render and s.get("type") == "mak_beat" and s.get("status") == "approved":
-            if s.get("method") == "frames":
+            if effective_method(s, data) == "frames":
                 d = ep / s.get("frames", "")
-                n = len(list(d.glob("*.png"))) if d.is_dir() else 0
-                if n == 0:
-                    E(f"{sid}: approved but no frames in {s.get('frames')}")
-                elif n != s.get("frame_count"):
-                    W(f"{sid}: frame_count {s.get('frame_count')} but {n} PNGs on disk")
+                missing = [f for p in s.get("poses", []) for f in p.get("frames", []) if not (d / f).exists()]
+                if missing:
+                    E(f"{sid}: approved but drawings missing: {', '.join(missing[:6])}")
             elif not (ep / s.get("clip", "_")).exists():
                 E(f"{sid}: approved but clip {s.get('clip')} is missing")
 

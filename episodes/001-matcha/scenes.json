@@ -2,163 +2,649 @@
   "episode": "001-matcha",
   "title": "matcha kini boleh, matcha depan gimana?",
   "fps": 30,
-  "size": [1080, 1920],
+  "size": [
+    1080,
+    1920
+  ],
   "budget_usd": 6,
+  "gates": {
+    "script": true,
+    "voiceover": true,
+    "mak": true,
+    "final": true
+  },
+  "plan": "chatgpt",
   "scenes": [
     {
       "id": "s0-hook",
       "type": "infographic",
-      "layout": "Hook",
       "duration_s": 2.9,
       "line": "Segelas matcha empat puluh lima ribu. Setahun? Sepuluh koma delapan juta.",
       "line_tts": "[fast] Segelas matcha empat puluh lima ribu. Setahun? [dramatic] Sepuluh koma delapan juta.",
-      "vo": { "file": "vo/s0-hook.mp3", "words": "vo/s0-hook.words.json" },
+      "vo": {
+        "file": "vo/s0-hook.mp3",
+        "words": "vo/s0-hook.words.json"
+      },
+      "set": "#FFF4E0",
+      "camera": {
+        "moves": [
+          {
+            "at_word": "setahun",
+            "zoom": 1.08,
+            "shake": 14
+          }
+        ]
+      },
       "infographic": [
-        { "kind": "cup", "wobble": true },
-        { "kind": "counter", "to": 10800000, "display": "Rp10,8 jt", "label": "setahun matcha" }
+        {
+          "kind": "cup",
+          "wobble": true,
+          "slot": "full",
+          "at": 0
+        },
+        {
+          "kind": "fx",
+          "fx": "speedlines",
+          "at_word": "setahun",
+          "layer": "back",
+          "dur": 1.2
+        },
+        {
+          "kind": "counter",
+          "to": 10800000,
+          "display": "Rp10,8 jt",
+          "label": "setahun matcha",
+          "slot": "full",
+          "at_word": "setahun"
+        }
       ],
       "status": "draft"
     },
     {
       "id": "s0b-kenalin",
       "type": "mak_beat",
-      "layout": "Kenalin",
       "duration_s": 3.6,
       "line": "Kenalin, Mak Rita. Mak yang bantu kamu hidup frugal.",
       "line_tts": "[warm] Kenalin, Mak Rita. Mak yang bantu kamu hidup frugal.",
       "emotion": "happy",
       "action": "waves at camera, warm smile",
+      "stage": "center",
+      "set": "ruang-tamu",
       "method": "frames",
-      "frames": "frames/s0b-kenalin/",
-      "frame_count": 8,
       "fps_anim": 12,
-      "mouth": { "x": 0.5, "y": 0.47, "scale": 0.12 },
-      "vo": { "file": "vo/s0b-kenalin.mp3", "words": "vo/s0b-kenalin.words.json" },
-      "infographic": [
-        { "kind": "nametag", "text": "Mak Rita" },
-        { "kind": "line", "text": "Mak yang bantu kamu hidup frugal" }
+      "frames": "frames/s0b-kenalin/",
+      "poses": [
+        {
+          "name": "wave",
+          "desc": "waves at the camera with her right hand raised high, big warm smile, eyes happy",
+          "at": 0,
+          "frames": [
+            "wave-a.png",
+            "wave-b.png"
+          ],
+          "cycle": true
+        },
+        {
+          "name": "proud",
+          "desc": "hand on her chest, proud warm smile, small head tilt",
+          "at_word": "yang",
+          "frames": [
+            "proud-1.png",
+            "proud.png"
+          ],
+          "blink": "proud-blink.png"
+        }
       ],
+      "infographic": [
+        {
+          "kind": "nametag",
+          "text": "Mak Rita",
+          "slot": "front",
+          "at_word": "mak"
+        },
+        {
+          "kind": "line",
+          "text": "Mak yang bantu kamu hidup frugal",
+          "slot": "front",
+          "at_word": "yang"
+        },
+        {
+          "kind": "fx",
+          "fx": "sparkle",
+          "anchor": "head",
+          "at_word": "frugal"
+        }
+      ],
+      "vo": {
+        "file": "vo/s0b-kenalin.mp3",
+        "words": "vo/s0b-kenalin.words.json"
+      },
       "status": "draft"
     },
     {
       "id": "s1-mak-marah",
       "type": "mak_beat",
-      "layout": "Marah",
       "duration_s": 3.8,
       "line": "NAK. Duduk. Mak mau ngomong.",
       "line_tts": "[angry] NAK. [shouts] Duduk. [stern] Mak mau ngomong.",
       "emotion": "angry",
       "action": "slams table, points at camera",
-      "method": "i2v",
-      "start_frame": "frames/s1-mak-marah/start.png",
-      "end_frame": "frames/s1-mak-marah/end.png",
+      "stage": "center",
+      "set": "ruang-makan",
+      "start_frame": "frames/s1-mak-marah/windup.codex-original.png",
+      "end_frame": "frames/s1-mak-marah/lean.codex-original.png",
       "clip": "clips/s1-mak-marah.webm",
-      "vo": { "file": "vo/s1-mak-marah.mp3", "words": "vo/s1-mak-marah.words.json" },
-      "overlay": ["redglow", "anger"],
+      "camera": {
+        "moves": [
+          {
+            "at_word": "nak",
+            "zoom": 1.12,
+            "shake": 28,
+            "focus": "mouth"
+          },
+          {
+            "at_word": "ngomong",
+            "zoom": 1.04
+          }
+        ]
+      },
+      "infographic": [
+        {
+          "kind": "fx",
+          "fx": "redglow",
+          "layer": "back",
+          "at": 0
+        },
+        {
+          "kind": "fx",
+          "fx": "speedlines",
+          "layer": "back",
+          "at_word": "nak"
+        },
+        {
+          "kind": "fx",
+          "fx": "impact",
+          "anchor": "hand_r",
+          "layer": "back",
+          "at_word": "nak"
+        },
+        {
+          "kind": "fx",
+          "fx": "anger",
+          "anchor": "head",
+          "at_word": "duduk"
+        }
+      ],
+      "vo": {
+        "file": "vo/s1-mak-marah.mp3",
+        "words": "vo/s1-mak-marah.words.json"
+      },
+      "key_color": "0x00FF00",
+      "method_by_plan": {
+        "chatgpt": "frames",
+        "kling": "i2v"
+      },
+      "frames": "frames/s1-mak-marah/",
+      "fps_anim": 12,
+      "poses": [
+        {
+          "name": "windup",
+          "desc": "both fists raised above the dining table, eyes narrowed, about to slam",
+          "at": 0,
+          "frames": [
+            "windup.png"
+          ],
+          "blink": "windup-blink.png"
+        },
+        {
+          "name": "slam",
+          "desc": "both fists slammed down on the table, shoulders up, mouth wide open shouting, hair curlers bouncing",
+          "at_word": "nak",
+          "frames": [
+            "slam-smear.png",
+            "slam.png"
+          ]
+        },
+        {
+          "name": "point",
+          "desc": "points straight at the camera with her index finger, hand big and foreshortened, stern frown",
+          "at_word": "duduk",
+          "frames": [
+            "point-1.png",
+            "point.png"
+          ],
+          "blink": "point-blink.png"
+        },
+        {
+          "name": "lean",
+          "desc": "leans forward over the table, forearms on it, stern stare",
+          "at_word": "ngomong",
+          "frames": [
+            "lean-1.png",
+            "lean.png"
+          ],
+          "blink": "lean-blink.png"
+        }
+      ],
       "status": "draft"
     },
     {
       "id": "s2-20-gelas",
       "type": "mak_beat",
-      "layout": "Gelas",
       "duration_s": 6.0,
       "line": "Dua puluh gelas matcha sebulan? Ini rekening atau kebun teh?",
       "line_tts": "[suspicious] Dua puluh gelas matcha sebulan? [pause] Ini rekening... atau kebun teh?",
       "emotion": "suspicious",
       "action": "squints at phone, eyebrow raised",
+      "stage": "present-right",
+      "set": "ruang-tamu",
       "method": "frames",
-      "frames": "frames/s2-20-gelas/",
-      "frame_count": 8,
       "fps_anim": 12,
-      "mouth": { "x": 0.5, "y": 0.47, "scale": 0.12 },
-      "vo": { "file": "vo/s2-20-gelas.mp3", "words": "vo/s2-20-gelas.words.json" },
-      "infographic": [
-        { "kind": "cups", "count": 20 },
-        { "kind": "counter", "to": 900000, "display": "Rp900 rb", "label": "20 gelas matcha × Rp45 rb, sebulan" }
+      "frames": "frames/s2-20-gelas/",
+      "poses": [
+        {
+          "name": "phone-look",
+          "desc": "holds a phone up in her right hand, squinting at the screen suspiciously, one eyebrow raised; the phone screen is completely blank and dark",
+          "at": 0,
+          "frames": [
+            "phone-look-1.png",
+            "phone-look.png"
+          ],
+          "blink": "phone-look-blink.png"
+        },
+        {
+          "name": "phone-show",
+          "desc": "turns the phone toward the camera at arm's length, other hand pointing at it, lips pursed; phone screen blank and dark",
+          "at_word": "ini",
+          "frames": [
+            "phone-show-1.png",
+            "phone-show.png"
+          ],
+          "blink": "phone-show-blink.png"
+        },
+        {
+          "name": "take",
+          "desc": "exaggerated cartoon shock take: eyes huge, jaw dropped, hair curlers popping up, phone still in hand with a blank dark screen",
+          "at_word": "kebun",
+          "frames": [
+            "take-smear.png",
+            "take.png"
+          ]
+        }
       ],
+      "camera": {
+        "moves": [
+          {
+            "at_word": "kebun",
+            "zoom": 1.08,
+            "shake": 10,
+            "focus": "head"
+          }
+        ]
+      },
+      "infographic": [
+        {
+          "kind": "phone",
+          "anchor": "hand_r",
+          "at": 0,
+          "screen": [
+            {
+              "kind": "cups",
+              "count": 20,
+              "cols": 5
+            }
+          ]
+        },
+        {
+          "kind": "counter",
+          "to": 900000,
+          "display": "Rp900 rb",
+          "label": "20 gelas matcha × Rp45 rb, sebulan",
+          "slot": "top",
+          "at_word": "sebulan"
+        },
+        {
+          "kind": "fx",
+          "fx": "shock",
+          "anchor": "head",
+          "at_word": "kebun"
+        },
+        {
+          "kind": "fx",
+          "fx": "sweat",
+          "anchor": "head",
+          "at_word": "teh"
+        }
+      ],
+      "vo": {
+        "file": "vo/s2-20-gelas.mp3",
+        "words": "vo/s2-20-gelas.words.json"
+      },
       "status": "draft"
     },
     {
       "id": "s3-setahun",
       "type": "mak_beat",
-      "layout": "Setahun",
       "duration_s": 5.2,
       "line": "Setahun sepuluh koma delapan juta, Nak. Itu tiket ke Jepang. Ke kebun tehnya langsung.",
       "line_tts": "[sighs] Setahun sepuluh koma delapan juta, Nak. [disappointed] Itu tiket ke Jepang. Ke kebun tehnya langsung.",
       "emotion": "disappointed",
       "action": "sighs, shakes head slowly",
+      "stage": "present-left",
+      "set": "ruang-tamu",
       "method": "frames",
-      "frames": "frames/s3-setahun/",
-      "frame_count": 8,
       "fps_anim": 12,
-      "mouth": { "x": 0.5, "y": 0.47, "scale": 0.12 },
-      "vo": { "file": "vo/s3-setahun.mp3", "words": "vo/s3-setahun.words.json" },
-      "infographic": [
-        { "kind": "counter", "to": 10800000, "display": "Rp10,8 jt", "label": "setahun" },
-        { "kind": "ticket", "text": "JAKARTA → TOKYO" }
+      "frames": "frames/s3-setahun/",
+      "poses": [
+        {
+          "name": "sigh",
+          "desc": "big tired sigh, eyes half closed, shoulders dropped, one hand on her forehead",
+          "at": 0,
+          "frames": [
+            "sigh-1.png",
+            "sigh.png"
+          ]
+        },
+        {
+          "name": "headshake",
+          "desc": "shakes her head, disappointed frown (two drawings: head turned slightly left, then slightly right)",
+          "at_word": "nak",
+          "frames": [
+            "headshake-a.png",
+            "headshake-b.png"
+          ],
+          "cycle": true
+        },
+        {
+          "name": "point-up",
+          "desc": "points up and to her left (viewer's right) at something above, eyebrows raised, dry smirk",
+          "at_word": "itu",
+          "frames": [
+            "point-up-1.png",
+            "point-up.png"
+          ],
+          "blink": "point-up-blink.png"
+        }
       ],
+      "infographic": [
+        {
+          "kind": "counter",
+          "to": 10800000,
+          "display": "Rp10,8 jt",
+          "label": "setahun",
+          "slot": "top",
+          "at": 0.2
+        },
+        {
+          "kind": "ticket",
+          "text": "JAKARTA → TOKYO",
+          "slot": "side",
+          "at_word": "jepang"
+        },
+        {
+          "kind": "fx",
+          "fx": "sparkle",
+          "pos": [
+            770,
+            1000
+          ],
+          "at_word": "langsung"
+        }
+      ],
+      "vo": {
+        "file": "vo/s3-setahun.mp3",
+        "words": "vo/s3-setahun.words.json"
+      },
       "status": "draft"
     },
     {
       "id": "s4-pun",
       "type": "mak_beat",
-      "layout": "Pun",
       "duration_s": 4.8,
       "line": "Matcha kini boleh. Tapi matcha depan gimana? Mak serius.",
       "line_tts": "Matcha kini boleh. [pause] Tapi matcha depan gimana? [stern] Mak serius.",
       "emotion": "stern",
       "action": "arms crossed, one eyebrow up",
+      "stage": "center",
+      "set": "ruang-tamu",
       "method": "frames",
-      "frames": "frames/s4-pun/",
-      "frame_count": 8,
       "fps_anim": 12,
-      "mouth": { "x": 0.5, "y": 0.47, "scale": 0.12 },
-      "vo": { "file": "vo/s4-pun.mp3", "words": "vo/s4-pun.words.json" },
-      "infographic": [
-        { "kind": "strike", "from": "masa", "to": "matcha", "rest": "depan" }
+      "frames": "frames/s4-pun/",
+      "poses": [
+        {
+          "name": "shrug",
+          "desc": "relaxed shrug, palms up, sly half smile",
+          "at": 0,
+          "frames": [
+            "shrug-1.png",
+            "shrug.png"
+          ],
+          "blink": "shrug-blink.png"
+        },
+        {
+          "name": "crossed",
+          "desc": "arms crossed tightly, one eyebrow up, stern stare straight at the camera",
+          "at_word": "tapi",
+          "frames": [
+            "crossed-1.png",
+            "crossed.png"
+          ],
+          "blink": "crossed-blink.png"
+        },
+        {
+          "name": "serius",
+          "desc": "leans toward the camera, eyes narrowed, wagging her index finger",
+          "at_word": "serius",
+          "frames": [
+            "serius-1.png",
+            "serius.png"
+          ],
+          "blink": "serius-blink.png"
+        }
       ],
+      "camera": {
+        "moves": [
+          {
+            "at_word": "serius",
+            "zoom": 1.15,
+            "focus": "head"
+          }
+        ]
+      },
+      "infographic": [
+        {
+          "kind": "strike",
+          "from": "masa",
+          "to": "matcha",
+          "rest": "depan",
+          "slot": "top",
+          "at_word": "tapi"
+        },
+        {
+          "kind": "fx",
+          "fx": "sparkle",
+          "pos": [
+            540,
+            330
+          ],
+          "at_word": "depan"
+        }
+      ],
+      "vo": {
+        "file": "vo/s4-pun.mp3",
+        "words": "vo/s4-pun.words.json"
+      },
       "status": "draft"
     },
     {
       "id": "s5-solusi",
       "type": "mak_beat",
-      "layout": "Solusi",
       "duration_s": 7.0,
       "line": "Gampang. Ke kafe delapan kali aja sebulan, sisanya bikin sendiri. Hemat enam koma empat delapan juta setahun.",
       "line_tts": "[matter-of-fact] Gampang. Ke kafe delapan kali aja sebulan, sisanya bikin sendiri. [proud] Hemat enam koma empat delapan juta setahun.",
       "emotion": "explaining",
       "action": "explains, counting on fingers",
+      "stage": "present-right",
+      "set": "dapur",
       "method": "frames",
-      "frames": "frames/s5-solusi/",
-      "frame_count": 10,
       "fps_anim": 12,
-      "mouth": { "x": 0.5, "y": 0.47, "scale": 0.12 },
-      "vo": { "file": "vo/s5-solusi.mp3", "words": "vo/s5-solusi.words.json" },
-      "infographic": [
-        { "kind": "cups_vs_jar", "cups": 8 },
-        { "kind": "counter", "to": 6480000, "display": "Rp6,48 jt", "label": "hemat setahun" },
-        { "kind": "tip", "text": "Beli bubuk matcha, seduh di rumah" }
+      "frames": "frames/s5-solusi/",
+      "poses": [
+        {
+          "name": "explain",
+          "desc": "one hand raised like a teacher explaining, confident smile",
+          "at": 0,
+          "frames": [
+            "explain-1.png",
+            "explain.png"
+          ],
+          "blink": "explain-blink.png"
+        },
+        {
+          "name": "count",
+          "desc": "holds up both hands showing eight fingers (five on one hand, three on the other), counting",
+          "at_word": "delapan",
+          "frames": [
+            "count-1.png",
+            "count.png"
+          ],
+          "blink": "count-blink.png"
+        },
+        {
+          "name": "whisk",
+          "desc": "happily whisking matcha in a small bowl with a bamboo whisk (two drawings: whisk left, whisk right)",
+          "at_word": "sisanya",
+          "frames": [
+            "whisk-a.png",
+            "whisk-b.png"
+          ],
+          "cycle": true,
+          "key_color": "0x0000FF"
+        },
+        {
+          "name": "thumbs",
+          "desc": "big thumbs up, proud grin",
+          "at_word": "hemat",
+          "frames": [
+            "thumbs-1.png",
+            "thumbs.png"
+          ],
+          "blink": "thumbs-blink.png"
+        }
       ],
+      "camera": {
+        "moves": [
+          {
+            "at_word": "hemat",
+            "zoom": 1.06
+          }
+        ]
+      },
+      "infographic": [
+        {
+          "kind": "cups_vs_jar",
+          "cups": 8,
+          "slot": "top",
+          "at_word": "kafe"
+        },
+        {
+          "kind": "counter",
+          "to": 6480000,
+          "display": "Rp6,48 jt",
+          "label": "hemat setahun",
+          "slot": "side",
+          "at_word": "hemat"
+        },
+        {
+          "kind": "tip",
+          "text": "Beli bubuk matcha, seduh di rumah",
+          "slot": "front",
+          "at_word": "setahun"
+        }
+      ],
+      "vo": {
+        "file": "vo/s5-solusi.mp3",
+        "words": "vo/s5-solusi.words.json"
+      },
       "status": "draft"
     },
     {
       "id": "s6-punchline",
       "type": "mak_beat",
-      "layout": "Punchline",
       "duration_s": 5.2,
       "line": "Matcha kini boleh, matcha depan juga harus.",
       "line_tts": "[sips] Matcha kini boleh... [playful] matcha depan juga harus.",
       "emotion": "playful",
       "action": "sips matcha, winks at camera",
-      "method": "i2v",
-      "start_frame": "frames/s6-punchline/start.png",
-      "end_frame": "frames/s6-punchline/end.png",
+      "stage": "center",
+      "set": "ruang-tamu",
+      "start_frame": "frames/s6-punchline/sip.codex-original.png",
+      "end_frame": "frames/s6-punchline/wink.codex-original.png",
       "clip": "clips/s6-punchline.webm",
-      "vo": { "file": "vo/s6-punchline.mp3", "words": "vo/s6-punchline.words.json" },
       "infographic": [
-        { "kind": "tagline", "text": "Matcha kini boleh, matcha depan juga harus." },
-        { "kind": "comment_prompt", "text": "Sebulan kamu berapa gelas? Jujur ke Mak di komen." },
-        { "kind": "fineprint", "text": "Hitungan Rp45 rb/gelas. Harga bubuk matcha belum dihitung." }
+        {
+          "kind": "tagline",
+          "text": "Matcha kini boleh, matcha depan juga harus.",
+          "slot": "top",
+          "at": 0.2
+        },
+        {
+          "kind": "comment_prompt",
+          "text": "Sebulan kamu berapa gelas? Jujur ke Mak di komen.",
+          "slot": "front",
+          "at_word": "harus"
+        },
+        {
+          "kind": "fineprint",
+          "text": "Hitungan Rp45 rb/gelas. Harga bubuk matcha belum dihitung.",
+          "slot": "bottom",
+          "at": 0
+        }
+      ],
+      "vo": {
+        "file": "vo/s6-punchline.mp3",
+        "words": "vo/s6-punchline.words.json"
+      },
+      "key_color": "0x0000FF",
+      "method_by_plan": {
+        "chatgpt": "frames",
+        "kling": "i2v"
+      },
+      "frames": "frames/s6-punchline/",
+      "fps_anim": 12,
+      "poses": [
+        {
+          "name": "sip",
+          "desc": "sips iced matcha latte through a straw, eyes closed, content",
+          "at": 0,
+          "frames": [
+            "sip-1.png",
+            "sip.png"
+          ],
+          "blink": "sip-blink.png",
+          "key_color": "0x0000FF"
+        },
+        {
+          "name": "smile",
+          "desc": "lowers the matcha cup, knowing smile at the camera",
+          "at_word": "matcha#2",
+          "frames": [
+            "smile-1.png",
+            "smile.png"
+          ],
+          "blink": "smile-blink.png",
+          "key_color": "0x0000FF"
+        },
+        {
+          "name": "wink",
+          "desc": "winks at the camera holding the matcha cup up, playful grin",
+          "at_word": "harus",
+          "frames": [
+            "wink-1.png",
+            "wink.png"
+          ],
+          "key_color": "0x0000FF"
+        }
       ],
       "status": "draft"
     }

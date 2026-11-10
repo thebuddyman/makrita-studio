@@ -46,5 +46,17 @@ if (existsSync(mouths)) {
   console.log('✓ synced character/mouth-shapes');
 }
 
+// Background plates (flat painted sets), shared by every episode.
+const sets = join(repo, 'sets');
+const setsDst = join(pub, 'sets');
+rmSync(setsDst, { recursive: true, force: true });
+const setNames = [];
+if (existsSync(sets)) {
+  cpSync(sets, setsDst, { recursive: true });
+  for (const f of readdirSync(sets)) if (f.endsWith('.png')) setNames.push(f.replace(/\.png$/, ''));
+  console.log(`✓ synced sets (${setNames.length})`);
+}
+writeFileSync(join(pub, 'sets.json'), JSON.stringify(setNames));
+
 // Index so the composition can list episodes without a server.
 writeFileSync(join(pub, 'episodes.json'), JSON.stringify(all, null, 2));

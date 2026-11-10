@@ -1,4 +1,4 @@
-# Drop the matcha HTML prototype here
+# Drop Thomas's script / the matcha HTML prototype here
 
 Put the original ±38 s HTML prototype (and any images it uses) in this folder.
 

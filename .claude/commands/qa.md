@@ -12,3 +12,5 @@ Hand this to the **qa** sub-agent: check every `mak_beat` with status
 Then print the report's summary table and the list of FLAGGED scenes. For a
 failed scene with fewer than 2 retries, offer to regenerate it with
 `/make-mak <episode> <scene>`.
+
+**Checklist:** Finish with `uv run pipeline/checklist.py sync <episode>`.

@@ -4,6 +4,8 @@
 # Verified against fal's model API and ElevenLabs docs on 2026-11-10.
 # Prices change — check https://fal.ai/models/<endpoint> before a big run.
 #
+# backend: codex (ChatGPT plan, images) or fal (default; video + paid backups)
+#
 # Each fal job:
 #   endpoint   fal endpoint id
 #   price      {unit: second|image|call|tokens_est, usd: …} → used for the budget check
@@ -26,26 +28,37 @@ voice:
       use_speaker_boost: true
 
 jobs:
-  # ---------- images (GPT Image 2 first, Nano Banana Pro backup) ----------
+  # ---------- images: ChatGPT plan via Codex CLI ($imagegen, GPT Image 2) — no API cost ----------
+  # Needs `codex login` with ChatGPT. Uses plan quota; ~40-90 s per image; run one at a time.
+  # Transparent = flat key colour, keyed out locally with FFmpeg (use --key-color 0x0000FF if the subject has green).
   image.model_sheet:
-    endpoint: openai/gpt-image-2/edit
-    price: { unit: image, usd: 0.25 }      # token-based; high quality + several refs, rough upper estimate
-    inputs: { prompt: prompt, images: image_urls, n: num_images }
-    defaults: { image_size: { width: 2048, height: 1152 }, quality: high, background: opaque, output_format: png, num_images: 1 }
-    output: "images[].url"
-    ext: png
+    backend: codex
+    price: { unit: image, usd: 0 }
+    inputs: { prompt: prompt, images: images }
+    defaults: { size: [1536, 1024], background: opaque }
 
   image.mouths:
-    endpoint: openai/gpt-image-2/edit
-    price: { unit: image, usd: 0.15 }
-    inputs: { prompt: prompt, images: image_urls, n: num_images }
-    defaults: { image_size: { width: 1024, height: 1024 }, quality: high, background: transparent, output_format: png, num_images: 1 }
-    output: "images[].url"
-    ext: png
+    backend: codex
+    price: { unit: image, usd: 0 }
+    inputs: { prompt: prompt, images: images }
+    defaults: { size: [1024, 1024], background: transparent, key_color: "0x00FF00" }
 
   image.frame:                             # one frame of a frame sheet, or an i2v start/end frame
+    backend: codex
+    price: { unit: image, usd: 0 }
+    inputs: { prompt: prompt, images: images }
+    defaults: { size: [1024, 1024], background: transparent, key_color: "0x00FF00" }
+
+  image.set:                               # background plates, reused across episodes → sets/<name>.png
+    backend: codex
+    price: { unit: image, usd: 0 }
+    inputs: { prompt: prompt, images: images }
+    defaults: { size: [1024, 1820], background: opaque }
+
+  # ---------- images: paid fal backups (only if the ChatGPT plan limit is hit or a beat keeps failing) ----------
+  image.frame_fal:
     endpoint: openai/gpt-image-2/edit
-    price: { unit: image, usd: 0.08 }      # medium quality estimate; raise quality only if QA fails on detail
+    price: { unit: image, usd: 0.08 }      # token-based, medium quality estimate
     inputs: { prompt: prompt, images: image_urls, background: background }
     defaults: { image_size: { width: 1024, height: 1024 }, quality: medium, background: transparent, output_format: png, num_images: 1 }
     output: "images[].url"

@@ -8,7 +8,7 @@ Arguments: `$ARGUMENTS`
 1. Check `script.md` has `status: approved`. If not, stop and ask.
 2. Check `voice.mak.voice_id` in `pipeline/config/models.yaml` is set. If it is
    still `TODO`, use the elevenlabs MCP to list voices, suggest 3 that fit Mak
-   (warm, older Indonesian woman, can be loud), and stop for Thomas to pick.
+   (warm, older Indonesian woman, can be loud), and stop for Steve to pick.
 3. Run `uv run pipeline/vo.py <episode> [scene]`. It writes `vo/<scene>.mp3`
    and `vo/<scene>.words.json`, logs characters to `cost.json`, and prints each
    take's length next to the scene's `duration_s`.
@@ -16,6 +16,8 @@ Arguments: `$ARGUMENTS`
    and keep the total in 36–40 s. Edit `scenes.json` only after saying what you
    change, then run `uv run pipeline/validate.py <episode>`.
 
-**Gate 2:** stop. List each mp3 path with its length and ask Thomas to listen
+**Gate 2:** stop. List each mp3 path with its length and ask Steve to listen
 and approve, or say which lines to redo (re-run with the scene id, optionally
 `--model eleven_multilingual_v2` or a tweaked `line_tts`).
+
+**Checklist:** After generating, run `uv run pipeline/checklist.py sync <episode>`. When Steve approves the takes, run `uv run pipeline/checklist.py tick <episode> vo.approved --by Steve`.

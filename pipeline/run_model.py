@@ -1,15 +1,19 @@
-"""Run one fal model job from models.yaml: budget check → upload inputs → run → save output → log cost.
+"""Run one model job from models.yaml: budget check → run → save output → log cost.
 
-  uv run pipeline/fal_run.py image.frame --episode 001-matcha --scene s2-20-gelas \\
+Backends (set per job in models.yaml):
+  codex  images via Codex CLI $imagegen on the ChatGPT plan (no API cost)
+  fal    everything else (video, paid image backups), billed to FAL_KEY
+
+  uv run pipeline/run_model.py image.frame --episode 001-matcha --scene s2-20-gelas \\
       --prompt-file episodes/001-matcha/qa/s2-20-gelas/prompt-003.txt \\
       --image character/mak-reference/model-sheet.png \\
       --out frames/s2-20-gelas/003.png
 
-  uv run pipeline/fal_run.py video.hero --episode 001-matcha --scene s1-mak-marah \\
+  uv run pipeline/run_model.py video.hero --episode 001-matcha --scene s1-mak-marah \\
       --prompt "…" --start-image frames/s1-mak-marah/start.png --end-image frames/s1-mak-marah/end.png \\
       --duration 4 --out clips/s1-mak-marah.raw.mp4
 
-  uv run pipeline/fal_run.py video.hero --describe        # show the job config
+  uv run pipeline/run_model.py video.hero --describe        # show the job config
   … --dry-run                                            # print payload + estimate, spend nothing
 
 Relative --out paths are inside the episode folder. Input paths are tried as given,
@@ -77,6 +81,28 @@ def estimate(cfg: dict, args, ep_dir: Path | None) -> tuple[float, dict]:
     return usd, {"calls": 1}
 
 
+def run_codex(a, cfg: dict, ep_dir: Path, prompt: str | None) -> None:
+    """Images on the ChatGPT plan through Codex CLI. Free per image; logged with usd 0."""
+    from codex_image import generate
+
+    if not prompt:
+        die("a --prompt or --prompt-file is required")
+    d = cfg.get("defaults", {})
+    refs = [resolve_input(p, ep_dir) for p in a.image]
+    size = d.get("size", [1024, 1024])
+    background = a.background or d.get("background", "opaque")
+    key = a.key_color or d.get("key_color", "0x00FF00")
+    out = Path(a.out) if Path(a.out).is_absolute() else ep_dir / a.out
+    print(f"→ {a.job} [codex $imagegen, ChatGPT plan] scene={a.scene or '-'} refs={len(refs)} bg={background}")
+    if a.dry_run:
+        print(json.dumps({"prompt": prompt, "refs": [rel(r) for r in refs], "size": size, "background": background,
+                          "key_color": key, "out": rel(out)}, indent=2, ensure_ascii=False))
+        return
+    generate(prompt, refs, out, background, (size[0], size[1]), key)
+    log_cost(a.episode, job=a.job, endpoint="codex/$imagegen", backend="codex", scene=a.scene, usd=0,
+             images=1, outputs=[rel(out)], note="ChatGPT plan quota")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("job")
@@ -92,6 +118,8 @@ def main() -> None:
     ap.add_argument("--duration", type=int)
     ap.add_argument("--n", type=int)
     ap.add_argument("--background", choices=["transparent", "opaque", "auto"])
+    ap.add_argument("--key-color", help="codex backend: background colour keyed out for transparency "
+                                        "(0x00FF00 green default; 0x0000FF blue when the subject has green)")
     ap.add_argument("--set", action="append", default=[], metavar="KEY=JSON", help="extra endpoint param")
     ap.add_argument("--out", help="output path (relative → inside the episode folder)")
     ap.add_argument("--dry-run", action="store_true")
@@ -99,6 +127,7 @@ def main() -> None:
     a = ap.parse_args()
 
     cfg = job_config(a.job)
+    cfg.setdefault("backend", "fal")
     if a.describe:
         print(json.dumps(cfg, indent=2))
         return
@@ -139,6 +168,10 @@ def main() -> None:
             if key not in inputs:
                 die(f"job {a.job} takes no --{flag.replace('_', '-')}")
             files[inputs[key]] = resolve_input(val, ep_dir)
+
+    if cfg.get("backend") == "codex":
+        run_codex(a, cfg, ep_dir, prompt)
+        return
 
     est, units = estimate(cfg, a, ep_dir)
     print(f"→ {a.job} [{cfg['endpoint']}] scene={a.scene or '-'} ~${est:.3f} "

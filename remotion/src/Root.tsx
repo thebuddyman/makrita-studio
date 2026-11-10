@@ -21,18 +21,26 @@ const calculateMetadata: CalculateMetadataFunction<EpisodeProps> = async ({ prop
   }
   // written by scripts/sync-public.mjs
   const files = new Set((await fetchJson<string[]>(`${base}/manifest.json`)) ?? []);
+  const sets = new Set((await fetchJson<string[]>('sets.json')) ?? []);
   const exists = async (path: string) => files.has(path.slice(base.length + 1));
 
+  const plan = props.plan ?? data.plan;
   let from = 0;
   const resolved: ResolvedScene[] = [];
-  for (const s of data.scenes) {
+  for (const raw of data.scenes) {
+    const s = { ...raw, method: (plan && raw.method_by_plan?.[plan]) || raw.method || raw.method_by_plan?.chatgpt };
     const durationInFrames = Math.round(s.duration_s * data.fps);
     const voAvailable = s.vo ? await exists(`${base}/${s.vo.file}`) : false;
     const words = s.vo && voAvailable ? await fetchJson<Words>(`${base}/${s.vo.words}`) : null;
     const showMak =
       s.type === 'mak_beat' &&
       (s.status === 'approved' || (props.previewUnapproved && READY_FOR_PREVIEW.has(s.status)));
-    resolved.push({ ...s, from, durationInFrames, showMak, voAvailable, words });
+    const setAvailable = !!s.set && sets.has(s.set);
+    const blinkAvailable: Record<string, boolean> = {};
+    for (const p of s.poses ?? []) {
+      if (p.blink) blinkAvailable[p.blink] = files.has(`${s.frames ?? ''}${p.blink}`);
+    }
+    resolved.push({ ...s, from, durationInFrames, showMak, voAvailable, setAvailable, blinkAvailable, words });
     from += durationInFrames;
   }
 

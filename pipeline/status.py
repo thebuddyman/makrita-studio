@@ -7,16 +7,17 @@ from __future__ import annotations
 
 import argparse
 
-from common import STATUSES, episode_dir, find_scene, load_scenes, save_scenes
+from common import STATUSES, effective_method, episode_dir, find_scene, load_scenes, save_scenes
 
 
-def assets(ep_dir, s: dict) -> str:
+def assets(ep_dir, s: dict, data: dict) -> str:
     if s["type"] != "mak_beat":
         parts = []
-    elif s.get("method") == "frames":
+    elif effective_method(s, data) == "frames":
         d = ep_dir / s.get("frames", "")
-        n = len(list(d.glob("*.png"))) if d.is_dir() else 0
-        parts = [f"frames {n}/{s.get('frame_count', '?')}"]
+        need = [f for p in s.get("poses", []) for f in p.get("frames", [])]
+        have = sum((d / f).exists() for f in need)
+        parts = [f"{len(s.get('poses', []))} poses, drawings {have}/{len(need)}"]
     else:
         parts = [
             "start✓" if (ep_dir / s.get("start_frame", "_")).exists() else "start✗",
@@ -47,11 +48,12 @@ def main() -> None:
 
     ep_dir = episode_dir(a.episode)
     total = 0.0
+    print(f"plan: {data.get('plan', '-')}")
     print(f"{'scene':<16} {'type':<11} {'method':<7} {'len':>5}  {'status':<10} assets")
     for s in data["scenes"]:
         total += s.get("duration_s", 0)
-        print(f"{s['id']:<16} {s['type']:<11} {s.get('method', '-'):<7} {s.get('duration_s', 0):>5.1f}  "
-              f"{s.get('status', 'draft'):<10} {assets(ep_dir, s)}")
+        print(f"{s['id']:<16} {s['type']:<11} {effective_method(s, data) or '-':<7} {s.get('duration_s', 0):>5.1f}  "
+              f"{s.get('status', 'draft'):<10} {assets(ep_dir, s, data)}")
     print(f"{'total':<36} {total:>5.1f}s")
 
 
