@@ -1,0 +1,20 @@
+# secrets
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# node / remotion
+node_modules/
+remotion/public/
+remotion/build/
+out/
+
+# os / editor
+.DS_Store
+*.log

@@ -1,0 +1,112 @@
+# The ONLY place model ids, Mak's voice and prices are named.
+# Swap a model here; scripts, agents and commands never hard-code ids.
+#
+# Verified against fal's model API and ElevenLabs docs on 2026-11-10.
+# Prices change — check https://fal.ai/models/<endpoint> before a big run.
+#
+# Each fal job:
+#   endpoint   fal endpoint id
+#   price      {unit: second|image|call|tokens_est, usd: …} → used for the budget check
+#   inputs     generic pipeline flag → the endpoint's parameter name
+#   defaults   always sent
+#   output     where the file url is in the result (dot path; [] = every item)
+#   ext        file extension to save
+
+voice:
+  mak:
+    voice_id: TODO            # pick in /vo (Claude lists voices via the elevenlabs MCP)
+    model_id: eleven_v3       # audio tags like [sighs] need v3+; eleven_v4 is newer — try it as an alternative
+    fallback_model_id: eleven_multilingual_v2
+    language_code: id
+    output_format: mp3_44100_128
+    voice_settings:
+      stability: 0.5          # v3 accepts 0.0 (creative), 0.5 (natural), 1.0 (robust)
+      similarity_boost: 0.8
+      style: 0.0
+      use_speaker_boost: true
+
+jobs:
+  # ---------- images (GPT Image 2 first, Nano Banana Pro backup) ----------
+  image.model_sheet:
+    endpoint: openai/gpt-image-2/edit
+    price: { unit: image, usd: 0.25 }      # token-based; high quality + several refs, rough upper estimate
+    inputs: { prompt: prompt, images: image_urls, n: num_images }
+    defaults: { image_size: { width: 2048, height: 1152 }, quality: high, background: opaque, output_format: png, num_images: 1 }
+    output: "images[].url"
+    ext: png
+
+  image.mouths:
+    endpoint: openai/gpt-image-2/edit
+    price: { unit: image, usd: 0.15 }
+    inputs: { prompt: prompt, images: image_urls, n: num_images }
+    defaults: { image_size: { width: 1024, height: 1024 }, quality: high, background: transparent, output_format: png, num_images: 1 }
+    output: "images[].url"
+    ext: png
+
+  image.frame:                             # one frame of a frame sheet, or an i2v start/end frame
+    endpoint: openai/gpt-image-2/edit
+    price: { unit: image, usd: 0.08 }      # medium quality estimate; raise quality only if QA fails on detail
+    inputs: { prompt: prompt, images: image_urls, background: background }
+    defaults: { image_size: { width: 1024, height: 1024 }, quality: medium, background: transparent, output_format: png, num_images: 1 }
+    output: "images[].url"
+    ext: png
+
+  image.frame_backup:
+    endpoint: fal-ai/nano-banana-pro/edit
+    price: { unit: image, usd: 0.15 }
+    inputs: { prompt: prompt, images: image_urls }
+    defaults: { aspect_ratio: "1:1", resolution: 1K, output_format: png, num_images: 1 }
+    output: "images[].url"
+    ext: png
+
+  image.bg_remove:
+    endpoint: fal-ai/bria/background/remove
+    price: { unit: image, usd: 0.018 }
+    inputs: { image: image_url }
+    defaults: {}
+    output: "image.url"
+    ext: png
+
+  # ---------- video ----------
+  video.hero:                              # final hero takes, start + end frame
+    endpoint: fal-ai/kling-video/v3/pro/image-to-video
+    price: { unit: second, usd: 0.112 }    # audio OFF; with audio it is $0.168/s
+    inputs: { prompt: prompt, start_image: start_image_url, end_image: end_image_url, duration: duration }
+    defaults: { generate_audio: false, negative_prompt: "text, letters, watermark, 3d render, photorealistic, blurry, extra fingers" }
+    duration_type: string                  # Kling wants "5", not 5
+    output: "video.url"
+    ext: mp4
+
+  video.draft:                             # cheap draft takes; Vidu Q3 keeps the end frame (Wan 2.6 has none)
+    endpoint: fal-ai/vidu/q3/image-to-video
+    price: { unit: second, usd: 0.07 }     # 540p; 720p+ is $0.154/s
+    inputs: { prompt: prompt, start_image: image_url, end_image: end_image_url, duration: duration }
+    defaults: { resolution: 540p, audio: false }
+    duration_type: int
+    output: "video.url"
+    ext: mp4
+
+  video.draft_wan:                         # PRD's original draft model; no end frame
+    endpoint: wan/v2.6/image-to-video
+    price: { unit: second, usd: 0.10 }     # 720p; PRD assumed $0.05/s, fal now lists $0.10/s
+    inputs: { prompt: prompt, start_image: image_url, duration: duration }
+    defaults: { resolution: 720p }
+    duration_type: string
+    output: "video.url"
+    ext: mp4
+
+  video.lipsync:
+    endpoint: fal-ai/kling-video/lipsync/audio-to-video
+    price: { unit: second_ceil5, usd: 0.014 }  # billed per input second, rounded up to 5 s; input 2–10 s, 720p+
+    inputs: { video: video_url, audio: audio_url }
+    defaults: {}
+    output: "video.url"
+    ext: mp4
+
+  video.bg_remove:                         # use when the FFmpeg green key leaves fringes
+    endpoint: veed/video-background-removal
+    price: { unit: frames30, usd: 0.0225 } # per 30 frames with edge refinement
+    inputs: { video: video_url }
+    defaults: { output_codec: vp9, refine_foreground_edges: true, subject_is_person: true }
+    output: "video.url"
+    ext: webm
